@@ -31,12 +31,21 @@ public class WebServer {
         serverSocket = new ServerSocket(port);
         while(true){
             //listen for a new connection on the socket
+            Socket connection = serverSocket.accept();
             //process an HTTP request over the new connection
+            //Data sent over OutputStream
+            OutputStream outputS = connection.getOutputStream();
+            //send the response
+            ResponseMessage message = new ResponseMessage(200);
+            message.write(outputS);
+            outputS.write(" A rote message ".getBytes());
+           
+           connection.close();
         }
-    }
+}
 
     public static void main(String[] args) throws IOException {
-        String usage = "Usage: java webserver.WebServer <port-number> <root-dir> (\"0\" | \"1\")";
+        String usage = "Usage: java webserver.WebServer 1091 /Users/alessandrobisiani/Desktop/webserver (\"0\" | \"1\")";
         if (args.length != 3) {
             throw new Error(usage);
         }
