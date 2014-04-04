@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.net.*;
 import java.nio.*;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.client.utils.DateUtils;
 
 public class WebServer {
@@ -19,6 +21,8 @@ public class WebServer {
     private String rootDir;
     private boolean logging;
     private ServerSocket serverSocket;
+    private InputStream inputStream;
+    private static long requestID;
 
     public WebServer(int port, String rootDir, boolean logging) {
         this.port = port;
@@ -27,20 +31,56 @@ public class WebServer {
         
     }
 
+    /** NOTES
+     * How to multithread?
+     * Should WebServer implement runnable and then destroy itself? prob not.
+     * Should i extend Request Message to implement Runnable interface and. No.
+     * What is the atomic unit which deals with the requests and and runs concurrently 
+     *  with the infinite while loop and other instances of itself?
+     * A new Request object perhaps? It could hold the RequestMessage and parse 
+     *  the InputStream.
+     * Or be created first thing within the while loop, and return a value when a
+     *  connection has been established. Or perhaps the connection could be
+     *  established, then passed to the 'request object' and a new thread started.
+     * What should determine when another of these objects is created?
+     */
+    
     public void start() throws IOException {
         serverSocket = new ServerSocket(port);
+        
         while(true){
             //listen for a new connection on the socket
             Socket connection = serverSocket.accept();
+
             //process an HTTP request over the new connection
+            //data sent from the client
+            inputStream = connection.getInputStream();
+            try {
+                RequestMessage requestMsg = RequestMessage.parse(inputStream);
+                if(requestMsg.getURI().equals("GET")){
+                    OutputStream outputS = connection.getOutputStream();
+                    ResponseMessage message = new ResponseMessage(200);
+                    message.write(outputS);
+                    outputS.write(" Ok ".getBytes());
+                } else {
+                    OutputStream outputS = connection.getOutputStream();
+                    ResponseMessage message = new ResponseMessage(200);
+                    message.write(outputS);
+                    outputS.write(" not implemented ".getBytes());
+                }
+                } catch (MessageFormatException ex) {
+                Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            /*
             //Data sent over OutputStream
             OutputStream outputS = connection.getOutputStream();
             //send the response
             ResponseMessage message = new ResponseMessage(200);
             message.write(outputS);
-            outputS.write(" A rote message ".getBytes());
-           
-           connection.close();
+            outputS.write(" Ok ".getBytes());
+            */
+
+            connection.close();
         }
 }
 
