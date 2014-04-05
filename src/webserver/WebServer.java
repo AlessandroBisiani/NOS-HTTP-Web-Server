@@ -32,17 +32,10 @@ public class WebServer {
     }
 
     /** NOTES
-     * How to multithread?
-     * Should WebServer implement runnable and then destroy itself? prob not.
-     * Should i extend Request Message to implement Runnable interface and. No.
-     * What is the atomic unit which deals with the requests and and runs concurrently 
-     *  with the infinite while loop and other instances of itself?
-     * A new Request object perhaps? It could hold the RequestMessage and parse 
-     *  the InputStream.
-     * Or be created first thing within the while loop, and return a value when a
-     *  connection has been established. Or perhaps the connection could be
-     *  established, then passed to the 'request object' and a new thread started.
-     * What should determine when another of these objects is created?
+     * The ConnectionInstance class (which really needs a better fucking name) holds the http request handler code.
+     * The infinite while loop waits for something to try and connect on port then .accept() the connection and puts 
+     *  in connection field.
+     * connection is passed to ConnectionInstance which deals which the content of that connection.
      */
     
     public void start() throws IOException {
@@ -63,7 +56,7 @@ public class WebServer {
                     OutputStream outputS = connection.getOutputStream();
                     ResponseMessage message = new ResponseMessage(200);
                     message.write(outputS);
-                    outputS.write(" Ok ".getBytes());
+                    outputS.write(" Aw yeah. ".getBytes());
                 } else {
                     OutputStream outputS = connection.getOutputStream();
                     ResponseMessage message = new ResponseMessage(200);
@@ -84,12 +77,8 @@ public class WebServer {
 
             connection.close();
         }
+    }  
 }
-
-    public void get(){
-        ResponseMessage rsp = new ResponseMessage(port);
-        //rsp.
-    }
     
     public static void main(String[] args) throws IOException {
         String usage = "Usage: java webserver.WebServer 1091 C:\\WebServer (\"0\" | \"1\")";
