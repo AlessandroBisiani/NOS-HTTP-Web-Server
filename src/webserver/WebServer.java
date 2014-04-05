@@ -51,13 +51,15 @@ public class WebServer {
         while(true){
             //listen for a new connection on the socket
             Socket connection = serverSocket.accept();
+            new ConnectionInstance(connection).run();
 
             //process an HTTP request over the new connection
             //data sent from the client
             inputStream = connection.getInputStream();
             try {
                 RequestMessage requestMsg = RequestMessage.parse(inputStream);
-                if(requestMsg.getURI().equals("GET")){
+                if(requestMsg.getMethod().equals("GET")){
+                    System.out.println("halp! I'm a tast!");
                     OutputStream outputS = connection.getOutputStream();
                     ResponseMessage message = new ResponseMessage(200);
                     message.write(outputS);
@@ -84,8 +86,13 @@ public class WebServer {
         }
 }
 
+    public void get(){
+        ResponseMessage rsp = new ResponseMessage(port);
+        //rsp.
+    }
+    
     public static void main(String[] args) throws IOException {
-        String usage = "Usage: java webserver.WebServer 1091 /Users/alessandrobisiani/Desktop/webserver (\"0\" | \"1\")";
+        String usage = "Usage: java webserver.WebServer 1091 C:\\WebServer (\"0\" | \"1\")";
         if (args.length != 3) {
             throw new Error(usage);
         }
