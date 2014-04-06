@@ -24,44 +24,52 @@ public class WebServer {
     private InputStream inputStream;
     private static long requestID;
 
+    
+    
+    
+   
     public WebServer(int port, String rootDir, boolean logging) {
         this.port = port;
         this.rootDir = rootDir;
         this.logging = logging;
-        
     }
 
+    
+    
+    
     /** NOTES
-     * How to multithread?
-     * Should WebServer implement runnable and then destroy itself? prob not.
-     * Should i extend Request Message to implement Runnable interface and. No.
-     * What is the atomic unit which deals with the requests and and runs concurrently 
-     *  with the infinite while loop and other instances of itself?
-     * A new Request object perhaps? It could hold the RequestMessage and parse 
-     *  the InputStream.
-     * Or be created first thing within the while loop, and return a value when a
-     *  connection has been established. Or perhaps the connection could be
-     *  established, then passed to the 'request object' and a new thread started.
-     * What should determine when another of these objects is created?
+     * The ConnectionInstance class (which really needs a better fucking name) holds the http request handler code.
+     * The infinite while loop waits for something to try and connect on port then .accept() the connection and puts 
+     *  in connection field.
+     * connection is passed to ConnectionInstance which deals which the content of that connection.
      */
     
     public void start() throws IOException {
+        
+        
         serverSocket = new ServerSocket(port);
+        
         
         while(true){
             //listen for a new connection on the socket
             Socket connection = serverSocket.accept();
-
+            new ConnectionInstance(connection, rootDir).run();
+        }
+        
+        
+        
             //process an HTTP request over the new connection
             //data sent from the client
+            /*
             inputStream = connection.getInputStream();
             try {
                 RequestMessage requestMsg = RequestMessage.parse(inputStream);
-                if(requestMsg.getURI().equals("GET")){
+                if(requestMsg.getMethod().equals("GET")){
+                    System.out.println("halp! I'm a tast!");
                     OutputStream outputS = connection.getOutputStream();
                     ResponseMessage message = new ResponseMessage(200);
                     message.write(outputS);
-                    outputS.write(" Ok ".getBytes());
+                    outputS.write(" Aw yeah. ".getBytes());
                 } else {
                     OutputStream outputS = connection.getOutputStream();
                     ResponseMessage message = new ResponseMessage(200);
@@ -80,12 +88,12 @@ public class WebServer {
             outputS.write(" Ok ".getBytes());
             */
 
-            connection.close();
-        }
-}
+            //connection.close();
+    }  
 
+    
     public static void main(String[] args) throws IOException {
-        String usage = "Usage: java webserver.WebServer 1091 /Users/alessandrobisiani/Desktop/webserver (\"0\" | \"1\")";
+        String usage = "Usage: java webserver.WebServer 1091 C:\\WebServer (\"0\" | \"1\")";
         if (args.length != 3) {
             throw new Error(usage);
         }
