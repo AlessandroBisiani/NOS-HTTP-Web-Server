@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +40,7 @@ public final class RequestHandler implements Runnable
     
     private final Socket connection;
     private String rootDir;
+    private Path path;
     
     private OutputStream outputStream;
     
@@ -68,9 +70,9 @@ public final class RequestHandler implements Runnable
             if(requestMsg.getMethod().equals("GET") || requestMsg.getMethod().equals("HEAD")){
                 //System.out.println("halp! I'm a tast!");
                 get();
-                ResponseMessage message = new ResponseMessage(200);
+                /*ResponseMessage message = new ResponseMessage(200);
                 message.write(outputStream);
-                outputStream.write(" Aw yeah. ".getBytes());
+                outputStream.write(" Aw yeah. ".getBytes());*/
             
                 
                 
@@ -78,7 +80,7 @@ public final class RequestHandler implements Runnable
                 
                 if(requestMsg.getMethod().equals("PUT")){
                     
-                   
+                    
                     
                     
                     
@@ -212,8 +214,11 @@ public final class RequestHandler implements Runnable
          }
        }
     
-    public void readFile(){
-        
+    public byte[] readFile() throws IOException{
+        byte[] arrayOfBytes = new byte[128];
+        //while
+        inputStream.read(arrayOfBytes, 0, 128);
+        return arrayOfBytes;
     }
     public void writeFile(){
         
