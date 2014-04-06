@@ -53,7 +53,7 @@ public class WebServer {
         while(true){
             //listen for a new connection on the socket
             Socket connection = serverSocket.accept();
-            new ConnectionInstance(connection, rootDir).run();
+            new RequestHandler(connection, rootDir).run();
         }
         
         
